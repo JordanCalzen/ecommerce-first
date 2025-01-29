@@ -33,7 +33,9 @@ export async function GET(request: NextRequest) {
 		const products = await db.product.findMany();
 		return NextResponse.json(
 			{
+				message: "success",
 				data: products,
+				error: null,
 			},
 			{ status: 200 }
 		);
