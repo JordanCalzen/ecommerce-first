@@ -1,11 +1,13 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import ImageInput from "./formInputs/image-input";
 export type Inputs = {
 	name: string;
 	price: number;
 	qty: number;
 	description: string;
+	image: string;
 };
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 export default function Form() {
@@ -16,7 +18,11 @@ export default function Form() {
 		reset,
 		formState: { errors },
 	} = useForm<Inputs>();
+	const initialImage =
+		"https://img.freepik.com/premium-vector/single-gray-square-with-simple-human-silhouette-inside-light-gray-background_213497-5040.jpg?uid=R177297642&ga=GA1.1.1785053804.1733249933&semt=ais_hybrid";
+	const [imageUrl, setImageUrl] = useState(initialImage);
 	async function formSubmit(data: Inputs) {
+		data.image = imageUrl;
 		data.price = Number(data.price);
 		data.qty = Number(data.qty);
 		try {
@@ -28,6 +34,7 @@ export default function Form() {
 				},
 				body: JSON.stringify(data),
 			});
+			window.location.href = "/";
 			console.log(res);
 		} catch (error) {
 			console.log(error);
@@ -207,6 +214,14 @@ export default function Form() {
 								</svg>
 							</span>
 						</div>
+					</div>
+					<div>
+						<ImageInput
+							title="Product Image"
+							imageUrl={imageUrl}
+							setImageUrl={setImageUrl}
+							endpoint="imageUploader"
+						/>
 					</div>
 					<button
 						type="submit"
