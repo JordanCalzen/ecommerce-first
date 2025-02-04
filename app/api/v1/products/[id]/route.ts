@@ -1,4 +1,6 @@
+import { Inputs } from "@/components/form";
 import { db } from "@/prisma/db";
+import { Product } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -62,12 +64,12 @@ export async function DELETE(
 	}
 }
 
-export async function PUT(
+export async function PATCH(
 	request: NextRequest,
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	const { id } = await params;
-	const data = await request.json();
+	const data: Product = await request.json();
 	const existingProduct = await db.product.findFirst({
 		where: {
 			id,

@@ -10,3 +10,14 @@ export async function fetchApi() {
 		return [];
 	}
 }
+
+export async function fetchSingleProduct(id: string) {
+	try {
+		const res = await fetch(`${baseUrl}/api/v1/products/${id}`);
+		const product = await res.json();
+		return product.data as ProductProps;
+	} catch (error) {
+		console.log(error);
+		return null;
+	}
+}

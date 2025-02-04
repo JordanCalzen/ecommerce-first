@@ -2,8 +2,9 @@
 import { ProductProps } from "@/types/types";
 import React from "react";
 import { Button } from "./ui/button";
-import { Plus, Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 export default function Card({
@@ -31,6 +32,11 @@ export default function Card({
 		<div className="w-full h-[30rem] max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
 			<Button onClick={() => handleDelete()}>
 				<Trash className="w-4 h-4 " />
+			</Button>
+			<Button>
+				<Link href={`edit-form/${product.id}`}>
+					<Edit className="w-4 h-4 " />
+				</Link>
 			</Button>
 
 			<a href="#">

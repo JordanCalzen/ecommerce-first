@@ -1,43 +1,90 @@
 "use client";
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import ImageInput from "./formInputs/image-input";
+import { ProductProps } from "@/types/types";
+import { Loader } from "lucide-react";
+import { useRouter } from "next/navigation";
 export type Inputs = {
 	name: string;
 	price: number;
 	qty: number;
 	description: string;
-	image: string;
+	image: string | null;
 };
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-export default function Form() {
+export default function Form({ product }: { product?: ProductProps | null }) {
 	const {
 		register,
 		handleSubmit,
 		watch,
 		reset,
 		formState: { errors },
-	} = useForm<Inputs>();
+	} = useForm<Inputs>({
+		defaultValues: {
+			name: product?.name,
+			price: product?.price,
+			qty: product?.qty,
+			image: product?.image,
+			description: product?.description,
+		},
+	});
+	const [loading, setLoading] = useState(false);
+	const router = useRouter();
 	const initialImage =
+		product?.image ||
 		"https://img.freepik.com/premium-vector/single-gray-square-with-simple-human-silhouette-inside-light-gray-background_213497-5040.jpg?uid=R177297642&ga=GA1.1.1785053804.1733249933&semt=ais_hybrid";
 	const [imageUrl, setImageUrl] = useState(initialImage);
 	async function formSubmit(data: Inputs) {
 		data.image = imageUrl;
 		data.price = Number(data.price);
 		data.qty = Number(data.qty);
-		try {
-			console.log(data);
-			const res = await fetch(`${baseUrl}/api/v1/products`, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(data),
-			});
-			window.location.href = "/";
-			console.log(res);
-		} catch (error) {
-			console.log(error);
+		if (product) {
+			try {
+				setLoading(true);
+				const response = await fetch(
+					`${baseUrl}/api/v1/products/${product.id}`,
+					{
+						method: "PATCH",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(data),
+					}
+				);
+				if (response) {
+					setLoading(false);
+					alert("Updated Successfully");
+					router.push("/");
+					router.refresh();
+				}
+			} catch (error) {
+				console.log(error);
+				setLoading(false);
+				alert("failed to update");
+			}
+		} else {
+			try {
+				setLoading(true);
+				console.log(data);
+				const res = await fetch(`${baseUrl}/api/v1/products`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
+				});
+				if (res) {
+					setLoading(false);
+					alert("Created Successfully");
+					router.push("/");
+					router.refresh();   
+				}
+			} catch (error) {
+				console.log(error);
+				setLoading(false);
+				alert("Failed to create the Product");
+			}
 		}
 	}
 	return (
@@ -223,12 +270,22 @@ export default function Form() {
 							endpoint="imageUploader"
 						/>
 					</div>
-					<button
-						type="submit"
-						className="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
-					>
-						Submit product
-					</button>
+					{loading ? (
+						<button
+							type="submit"
+							className=" flex justify-center items-center gap-2 w-full rounded-lg bg-indigo-400 px-5 py-3 text-sm font-medium text-black"
+						>
+							<Loader className="w-4 h-4 animate-spin" />
+							{product ? "Updating..." : "Submit..."}
+						</button>
+					) : (
+						<button
+							type="submit"
+							className="block w-full rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white"
+						>
+							{product ? "Update product" : "Submit product"}
+						</button>
+					)}
 				</form>
 			</div>
 		</div>
